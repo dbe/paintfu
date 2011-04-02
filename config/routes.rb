@@ -1,4 +1,6 @@
 Paintfu::Application.routes.draw do
+  get "paint/index"
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
