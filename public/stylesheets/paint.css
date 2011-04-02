@@ -1,0 +1,33 @@
+/* line 1, ../../app/stylesheets/paint.sass */
+.canvas {
+  border-style: solid;
+  border-width: 1px;
+}
+
+/* line 4, ../../app/stylesheets/paint.sass */
+.palette {
+  float: right;
+}
+/* line 6, ../../app/stylesheets/paint.sass */
+.palette .color {
+  width: 10px;
+  height: 10px;
+  border-style: solid;
+  border-width: 1px;
+}
+/* line 11, ../../app/stylesheets/paint.sass */
+.palette #black {
+  background-color: black;
+}
+/* line 13, ../../app/stylesheets/paint.sass */
+.palette #white {
+  background-color: white;
+}
+/* line 15, ../../app/stylesheets/paint.sass */
+.palette #blue {
+  background-color: blue;
+}
+/* line 17, ../../app/stylesheets/paint.sass */
+.palette #red {
+  background-color: red;
+}
