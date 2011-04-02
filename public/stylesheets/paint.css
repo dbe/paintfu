@@ -1,33 +1,44 @@
 /* line 1, ../../app/stylesheets/paint.sass */
-.canvas {
+.easel {
+  display: table;
+  margin: 0 auto;
+}
+/* line 4, ../../app/stylesheets/paint.sass */
+.easel .canvas {
   border-style: solid;
   border-width: 1px;
+  float: left;
 }
-
-/* line 4, ../../app/stylesheets/paint.sass */
-.palette {
-  float: right;
+/* line 8, ../../app/stylesheets/paint.sass */
+.easel .palette {
+  float: left;
 }
-/* line 6, ../../app/stylesheets/paint.sass */
-.palette .color {
+/* line 10, ../../app/stylesheets/paint.sass */
+.easel .palette .color {
   width: 10px;
   height: 10px;
   border-style: solid;
   border-width: 1px;
+  padding: 1px;
 }
-/* line 11, ../../app/stylesheets/paint.sass */
-.palette #black {
+/* line 16, ../../app/stylesheets/paint.sass */
+.easel .palette .selected {
+  border-color: #66ffff;
+  border-width: 1px;
+}
+/* line 19, ../../app/stylesheets/paint.sass */
+.easel .palette #black {
   background-color: black;
 }
-/* line 13, ../../app/stylesheets/paint.sass */
-.palette #white {
+/* line 21, ../../app/stylesheets/paint.sass */
+.easel .palette #white {
   background-color: white;
 }
-/* line 15, ../../app/stylesheets/paint.sass */
-.palette #blue {
+/* line 23, ../../app/stylesheets/paint.sass */
+.easel .palette #blue {
   background-color: blue;
 }
-/* line 17, ../../app/stylesheets/paint.sass */
-.palette #red {
+/* line 25, ../../app/stylesheets/paint.sass */
+.easel .palette #red {
   background-color: red;
 }

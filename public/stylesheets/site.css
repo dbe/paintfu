@@ -7,3 +7,11 @@
 .content h1 {
   text-align: center;
 }
+/* line 6, ../../app/stylesheets/site.sass */
+.content ul {
+  list-style-type: none;
+}
+/* line 8, ../../app/stylesheets/site.sass */
+.content ul li {
+  display: inline;
+}

@@ -1,16 +1,20 @@
 .content
   %h1 Your painting
-  %canvas.canvas{:width => 600,:height => 450}
-  .palette
-    %table
-      %tr
-        %td
-          .color#black
-        %td
-          .color#white
-      %tr
-        %td
-          .color#blue
-        %td
-          .color#red
+  .easel
+    %ul
+      %li
+        %canvas.canvas{:width => 400,:height => 300}
+      %li
+        .palette
+          %table
+            %tr
+              %td
+                .color#black.selected
+              %td
+                .color#white
+            %tr
+              %td
+                .color#blue
+              %td
+                .color#red
       
