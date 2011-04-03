@@ -1,7 +1,5 @@
 var canvas;
-var ctx;
-var x;
-var y;
+var context;
 var color;
 var drawBool;
 $(document).ready(function() {
@@ -13,28 +11,9 @@ function init()
 {
   //init canvas and context
   canvas = $('canvas')[0];
-  ctx = canvas.getContext("2d");
-    
-  $(canvas).bind('mousedown',function(event){
-    getCoords(event);
-    ctx.beginPath();
-    ctx.moveTo(x,y);
-    drawBool = true;
-  });
+  context = canvas.getContext("2d");
   
-  $(canvas).bind('mousemove',function(event){
-    if(drawBool == true)
-    {
-      getCoords(event);
-      ctx.lineTo(x,y);
-      ctx.stroke();
-    }
-  });
-  
-  $(canvas).bind('mouseup',function(event){
-    ctx.stroke();
-    drawBool = false;
-  });
+  bindPaintbrush("normal");
  
   //Makes palette boxes selectable
   $('.color').bind('click', function() {
@@ -44,6 +23,36 @@ function init()
 
 }
 
+//Add new behaviors here 
+//example addition: inverse: draw in opposite direction of brush movement
+function bindPaintbrush(behavior)
+{
+  if (behavior == "normal")
+  {
+    $(canvas).bind('mousedown',function(event){
+      coords = getCoords(event);
+      context.beginPath();
+      context.moveTo(coords.x,coords.y);
+      drawBool = true;
+    });
+
+    $(canvas).bind('mousemove',function(event){
+      if(drawBool == true)
+      {
+        coords = getCoords(event);
+        context.lineTo(coords.x,coords.y);
+        context.stroke();
+      }
+    });
+
+    $(canvas).bind('mouseup',function(event){
+      context.stroke();
+      drawBool = false;
+    }); 
+  }
+}
+
+//
 function getCoords(event)
 {
   //Firefox
@@ -58,13 +67,13 @@ function getCoords(event)
     x = event.offsetX - $('.canvas').offset().left - 1;
     y = event.offsetY - $('.canvas').offset().top - 1;
   }
+  return new coordinate(x,y);
 }
 
-function horzLine(xPos,yPos)
+function coordinate(xPos,yPos)
 {
-  ctx.moveTo(xPos,yPos);
-  ctx.lineTo(xPos + 100, yPos);
-  ctx.stroke();
+  this.x = xPos;
+  this.y = yPos;
 }
 
 //Brush object
