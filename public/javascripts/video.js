@@ -9,7 +9,7 @@ function onYouTubePlayerReady(playerId)
 function createRebeccas(number,width,height)
 {
   baseDivToReplace = "playerArea";
-  baseSwfDiv = "player"
+  baseSwfDiv = "player";
   baseUrl = "http://www.youtube.com/e/CD2LRROpph0?autoplay=1&controls=0&enablejsapi=1&playerapiid=";
   for(i=0;i<number;i++)
   {
