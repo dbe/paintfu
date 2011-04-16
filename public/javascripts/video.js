@@ -22,11 +22,10 @@ function createRebeccas(number,width,height)
 
 function moveRebecca()
 {
-  for (var item in loadedRebeccas)
+  for each (item in loadedRebeccas)
   {
     test = $('#' + item).parent();
     randomNum = Math.ceil(Math.random()*10);
-    console.log("Number" + item + "randomed a:" + randomNum);
     if (randomNum <= 3){test.animate({left : '+=100'}, 500);}
     else if(randomNum <= 6){test.animate({top : '+=100'}, 500);}
     else if(randomNum <= 8){test.animate({left : '-=100'}, 500);}

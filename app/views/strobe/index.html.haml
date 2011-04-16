@@ -1,0 +1,14 @@
+= stylesheet_link_tag 'strobe'
+
+:javascript
+  $(document).ready(function() {
+    window.setInterval(strobeFuck,50);
+  });
+  
+  function strobeFuck()
+  {
+    $('#strobe').toggle();
+  }
+
+#strobe
+  
