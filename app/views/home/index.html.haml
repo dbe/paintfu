@@ -1,4 +1,8 @@
 .content
   %h1 Welcome to PaintFu!!
+  %h2 RebeccaFu
+  = form_tag :controller => 'video', :action => 'index' do 
+    = text_field_tag :rebeccas
+    = submit_tag "GOGO REBECCA"
+  %h2 Paintfu
   = link_to("Go paint young one!", :controller => 'paint')
-  = link_to("Html5 Video", :controller => 'video') 
