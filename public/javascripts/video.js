@@ -1,29 +1,35 @@
+var loadedRebeccas = [];
+
 function onYouTubePlayerReady(playerId)
 {
   console.log(playerId + " has loaded.");
-  if (playerId == "player0")
-  {
-    window.setInterval(moveRebecca,1000,"player0");
-  }
+  loadedRebeccas.push(playerId);
 }
 
-function createRebeccas(number)
+function createRebeccas(number,width,height)
 {
   baseDivToReplace = "playerArea";
   baseSwfDiv = "player"
-  baseUrl = "http://www.youtube.com/e/CD2LRROpph0?autoplay=1&enablejsapi=1&playerapiid=";
+  baseUrl = "http://www.youtube.com/e/CD2LRROpph0?autoplay=1&controls=0&enablejsapi=1&playerapiid=";
   for(i=0;i<number;i++)
   {
     divToReplace = baseDivToReplace + i.toString();
     swfDiv = baseSwfDiv + i.toString();
     url = baseUrl + swfDiv;
-    swfobject.embedSWF(url,divToReplace, "425", "356", "8", null, null, { allowScriptAccess: "always"}, {id: swfDiv});
+    swfobject.embedSWF(url,divToReplace, width, height, "8", null, null, { allowScriptAccess: "always"}, {id: swfDiv});
   }
 }
 
-function moveRebecca(playerId)
+function moveRebecca()
 {
-  test = $('#' + playerId).parent();
-  console.log("In moveRebecca");
-  test.animate({left: '+=100'},1000);
+  for each (item in loadedRebeccas)
+  {
+    test = $('#' + item).parent();
+    randomNum = Math.ceil(Math.random()*10);
+    console.log("Number" + item + "randomed a:" + randomNum);
+    if (randomNum <= 3){test.animate({left : '+=100'}, 500);}
+    else if(randomNum <= 6){test.animate({top : '+=100'}, 500);}
+    else if(randomNum <= 8){test.animate({left : '-=100'}, 500);}
+    else {test.animate({top : '-=100'}, 500);}
+  }
 }

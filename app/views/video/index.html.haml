@@ -3,10 +3,11 @@
 
 :javascript
   $(document).ready(function() {
-    createRebeccas(#{@rebeccas});
+    createRebeccas(#{@rebeccas},#{@width},#{@height});
+    window.setInterval(moveRebecca,500);
   });
 
 - @rebeccas.to_i.times do |i|
-  %div{:id => "playerContainer#{i}", :class => "playerContainer"}
+  %div{:id => "playerContainer#{i}", :class => "playerContainer", :width => @width, :height => @height}
     %div{:id => "playerArea#{i}"}
       You don't have the right version of flash

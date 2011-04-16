@@ -1,8 +1,16 @@
 .content
   %h1 Welcome to PaintFu!!
   %h2 RebeccaFu
-  = form_tag :controller => 'video', :action => 'index' do 
+  = form_tag :controller => 'video', :action => 'index' do
+    = label_tag "rebeccas", "Number of desired Rebeccas:"
     = text_field_tag :rebeccas
+    %br
+    = label_tag "width", "Rebecca's Width:"
+    = text_field_tag :width
+    %br
+    = label_tag "height", "Rebecca's Height:"
+    = text_field_tag :height
+    %br
     = submit_tag "GOGO REBECCA"
   %h2 Paintfu
   = link_to("Go paint young one!", :controller => 'paint')
