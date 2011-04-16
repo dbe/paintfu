@@ -1,0 +1,5 @@
+/* line 1, ../../app/stylesheets/video.sass */
+.playerContainer {
+  width: 425px;
+  position: absolute;
+}
