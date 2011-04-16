@@ -1,19 +1,27 @@
-:javascript
-  var top;
-  var left;
-  $(document).ready(function() {
-    window.setInterval(moveVideo,100)
-  });
-  
-  function moveVideo()
-  {
-    randomNum = Math.ceil(Math.random()*4);
-    if (randomNum == 1){$('#test').animate({left : '+=30',left : '+=30'}, 100);}
-    else if(randomNum == 2){$('#test').animate({left : '-=30'}, 100);}
-    else if(randomNum == 3){$('#test').animate({top : '+=30'}, 100);}
-    else if(randomNum == 4){$('#test').animate({top : '-=30'}, 100);}
+/ :javascript
+/   var top;
+/   var left;
+/   $(document).ready(function() {
+/     window.setInterval(moveVideo,100)
+/   });
+/   
+/   function moveVideo()
+/   {
+/     randomNum = Math.ceil(Math.random()*4);
+/     if (randomNum == 1){$('.test').animate({left : '+=30',left : '+=30'}, 100);}
+/     else if(randomNum == 2){$('.test').animate({left : '-=30'}, 100);}
+/     else if(randomNum == 3){$('.test').animate({top : '+=30'}, 100);}
+/     else if(randomNum == 4){$('.test').animate({top : '-=30'}, 100);}
+/ 
+/   }
 
+/ #test{:style =>"top: 100px;left: 100px;right: 100px;position: absolute;"}
+/   %video{:src => '/videos/pr6.webm', :controls => true}
+:javascript
+  function onYouTubePlayerReady(playerId)
+  {
+    alert("in here");
   }
 
-#test{:style =>"top: 100px;left: 100px;right: 100px;position: absolute;"}
-  %video{:src => '/videos/pr6.webm', :controls => true}
+%iframe#test{:width => 400, :height => 300, :src => "http://www.youtube.com/e/CD2LRROpph0?enablejsapi=1&version=3&autoplay=1&playerapiid=test"}
+
