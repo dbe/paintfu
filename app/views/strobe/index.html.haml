@@ -2,12 +2,15 @@
 
 :javascript
   $(document).ready(function() {
-    window.setInterval(strobeFuck,50);
+    window.setInterval(strobeFuck,10);
   });
   
   function strobeFuck()
   {
-    $('#strobe').toggle();
+    randomNum = Math.ceil(Math.random()* 16777216);
+    hexValue = "#" + randomNum.toString(16);
+    console.log(hexValue);
+    $('#strobe').css({"background-color" : hexValue});
   }
 
 #strobe
