@@ -2,16 +2,35 @@
 
 :javascript
   $(document).ready(function() {
-    window.setInterval(strobeFuck,10);
+    if(#{@fullScreen} == 1)
+    {
+      $('#strobe').css({"height" : "1600px", "width" : "1200px"})
+      window.setInterval(strobeFuckFull,10);
+    }
+    else
+    {
+      window.setInterval(strobeFuck,10);
+    }
   });
   
-  function strobeFuck()
+  function strobeFuckFull()
   {
     randomNum = Math.ceil(Math.random()* 16777216);
     hexValue = "#" + randomNum.toString(16);
-    console.log(hexValue);
     $('#strobe').css({"background-color" : hexValue});
+  }
+  
+  function strobeFuck()
+  {
+    resizeNum = Math.ceil(Math.random()*19) - 10;
+    newHeight = parseInt($('#strobe').css("height").replace("px","")) + resizeNum;
+    newWidth = parseInt($('#strobe').css("width").replace("px","")) + resizeNum;
+    randomNum = Math.ceil(Math.random()* 16777216);
+    hexValue = "#" + randomNum.toString(16);
+    $('#strobe').css({"background-color" : hexValue, "height" : newHeight + "px", "width" : newWidth + "px"});
   }
 
 #strobe
+
+
   

@@ -15,4 +15,9 @@
   %h2 PaintFu
   = link_to("Go paint young one!", :controller => 'paint')
   %h2 StrobeFu
-  = link_to("STROBE STROBE STROBE", :controller => 'strobe')
+  = form_tag :controller => 'strobe', :action => 'index' do
+    = submit_tag "STROBE STROBE STROBE"
+    = label_tag "fullScreen", "Fullscreen?"
+    = check_box_tag 'fullScreen'
+
+
