@@ -1,4 +1,6 @@
 Paintfu::Application.routes.draw do
+  get "video/index"
+
   get "paint/index"
 
   # The priority is based upon order of creation:
