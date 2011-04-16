@@ -22,7 +22,7 @@ function createRebeccas(number,width,height)
 
 function moveRebecca()
 {
-  for each (item in loadedRebeccas)
+  for (var item in loadedRebeccas)
   {
     test = $('#' + item).parent();
     randomNum = Math.ceil(Math.random()*10);
