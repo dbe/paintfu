@@ -1,4 +1,43 @@
 /* line 1, ../../app/stylesheets/strobe.sass */
+#colors {
+  width: 51px;
+  position: absolute;
+  top: 158px;
+  left: 700px;
+}
+/* line 6, ../../app/stylesheets/strobe.sass */
+#colors .selected {
+  border-color: white;
+}
+/* line 8, ../../app/stylesheets/strobe.sass */
+#colors #red {
+  background-color: red;
+  width: 15px;
+  height: 15px;
+  float: left;
+  border-width: 1px;
+  border-style: solid;
+}
+/* line 15, ../../app/stylesheets/strobe.sass */
+#colors #green {
+  background-color: lime;
+  width: 15px;
+  height: 15px;
+  float: left;
+  border-width: 1px;
+  border-style: solid;
+}
+/* line 22, ../../app/stylesheets/strobe.sass */
+#colors #blue {
+  background-color: blue;
+  width: 15px;
+  height: 15px;
+  float: left;
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* line 29, ../../app/stylesheets/strobe.sass */
 #strobe {
   margin-left: auto;
   margin-right: auto;
