@@ -1,4 +1,6 @@
 Paintfu::Application.routes.draw do
+  get "motivate/index"
+
   get "strobe/index"
 
   get "video/index"

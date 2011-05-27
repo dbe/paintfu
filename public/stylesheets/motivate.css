@@ -1,0 +1,17 @@
+/* line 1, ../../app/stylesheets/motivate.sass */
+form ul {
+  list-style: none;
+}
+
+/* line 3, ../../app/stylesheets/motivate.sass */
+form ul li {
+  clear: left;
+}
+
+/* line 5, ../../app/stylesheets/motivate.sass */
+form ul li label {
+  width: 100px;
+  text-align: right;
+  margin-right: 5px;
+  float: left;
+}
