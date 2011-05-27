@@ -19,6 +19,8 @@ function init()
   $('.color').bind('click', function() {
     $('.selected').toggleClass('selected');
     $(this).toggleClass('selected');
+    console.log(brushes[0].context.style);
+    brushes[0].context.strokeStyle = $(this).attr('id');
   });
   
 }
