@@ -1,3 +1,5 @@
+= javascript_include_tag 'paint'
+
 .content
   %h1 Your painting
   .easel
@@ -17,4 +19,6 @@
                 .color#blue
               %td
                 .color#red
+            %tr
+              = text_field_tag("brush_size","", :size => 3)
       

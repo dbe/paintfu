@@ -19,8 +19,22 @@ function init()
   $('.color').bind('click', function() {
     $('.selected').toggleClass('selected');
     $(this).toggleClass('selected');
-    console.log(brushes[0].context.style);
     brushes[0].context.strokeStyle = $(this).attr('id');
+  });
+
+  //Makes brush size box change size of brush
+  $('#brush_size').keypress(function(e)
+  {
+    //backspace pressed
+    if (e.which == 8)
+    {
+        return;
+    }
+    //not a number, then don't allow entry
+    else if (!(e.which > 47 && e.which <58))
+    {
+        return false;
+    }
   });
   
 }
