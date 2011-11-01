@@ -6,6 +6,8 @@ Paintfu::Application.routes.draw do
   get "video/index"
 
   get "paint/index"
+  
+  match 'visualizer' => 'paint#visualizer'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
