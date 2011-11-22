@@ -1,36 +1,48 @@
-$(function(){
-  $('body').append("<canvas width=600 height=600> Get Canvas </canvas>");
-  $('canvas').css('border', '1px solid');
-  context = $('canvas')[0].getContext('2d');
-  setInterval(paintThing, 30);
-  setInterval(fillQueue, 0);
+//   var color = '#' + Math.floor(Math.random() * 16777216).toString(16);
+$(function() {
+  canvas = initCanvas(600,600, 'visualizer');
+  context = canvas.getContext('2d');
+  setInterval(filltimeQueue, 0);
+  setInterval(paint, 1000/24);
 });
 
-queue = [];
-timesPerSecond = 1;
-screenPerSecond = 1;
-width = 600;
-height = 600;
+var timeQueue = [];
+testRenderer = new Renderer(circX, circY, 1, 1)
 
 
-function fillQueue() {
-  if(queue.length == 1000)
-  {
-    queue.splice(0,1);
-  }
-  queue.push(new Date().getTime());
+
+function Renderer(xFunc, yFunc, xRate, yRate) {
+  this.xFunc = xFunc;
+  this.yFunc = yFunc;
+  this.xRate = xRate;
+  this.yRate = yRate;
 }
+
+Renderer.prototype.paint = function() {
+  
+}
+
+
+function filltimeQueue() {
+  if(timeQueue.length == 50)
+  {
+    timeQueue.splice(0,1);
+  }
+  timeQueue.push(new Date().getTime());
+}
+
+
 
 function paintThing() {
   clearContext();
   
   context.beginPath();
   
-  for(var i = 0; i< queue.length; i++)
+  for(var i = 0; i< timeQueue.length; i++)
   {
-    var time = queue[i];
-    // var x = horiz(time) * width;
-    var x = (circX(time) * 100) + 250;
+    var time = timeQueue[i];
+    //var x = horiz(time) * width;
+    var x = 250;//(circX(time) * 100) + 250;
     var y = (circY(time) * 100) + 250;
     context.fillRect(x , y, 5, 5)
     if(i == 0)
@@ -43,10 +55,6 @@ function paintThing() {
     }
   }
   //context.stroke();
-}
-
-function clearContext() {
-  context.clearRect(0, 0, 600, 600);
 }
 
 //returns a number of screens that the unit should have taken

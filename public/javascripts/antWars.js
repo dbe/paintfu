@@ -1,43 +1,25 @@
 //*******************************************On document ready, start up antWars************************************************************//
 $(document).ready(function() {
   $canvas = $('.canvas');
-  antWars($canvas);
+  antWarsHandler = antWars($canvas);
 });
 
 
 //**********************************antWars**********************************************************//
 function antWars($canvas) {
-  var ants,
+  var ants = [], //array of arrays. first dimension is the team number, second dimension is the actual list of ants.
+      teams = [], //Array of teams
       context,
       drawAnts,
       constructAnts,
       height = $canvas[0].height,
       width = $canvas[0].width,
-      mousePosition;
-      
-//********************************************** INIT ***************************************************************//
-  context = $canvas[0].getContext('2d');
-  //$canvas.mousemove(mouseMoved);
-  $canvas.click(mouseClicked);
-  
-  ants = constructAnts(5);
-  
-  setInterval(gameLoop, (1000 / 60)); //Trigger game loop
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      mousePosition,
+      colors = ['red', 'blue', 'green', 'orange', 'purple'],
+      last_update_time,
+      WORKER_ANT_COST = 10,
+      FIGHTER_ANT_COST = 20,
+      QUEEN_ANT_COST = 100;
 
 
 
@@ -60,7 +42,6 @@ function antWars($canvas) {
   	var string = ""
       string += "Position is : (" + this.pos.x + "," + this.pos.y + ")";
       string += " Size is : " + this.size;
-      string += " Path is centered at : (" + this.path.center.x + "," + this.path.center.y + ")";
       string += " Health is : " + this.attributes.health;
       string += " Attack is : " + this.attributes.attack;
       string += " Speed is : " + this.attributes.speed;
@@ -69,16 +50,27 @@ function antWars($canvas) {
   
   Ant.prototype.move = moveRandomly;
   Ant.prototype.draw = simpleDraw;
+  
+  
+//**********************************Team Object**********************************************************//  
+
+function Team() {
+  this.number = teams.length; //Identify itself as the next team in the list
+  this.ants = [];
+  this.foodRate = 10;
+  teams[this.number] = this;
+  
+}
     
 
 //********************************** Util functions **********************************************************//
 
 //***************Ant movement functions*******************
 
-  function moveRandomly() {
+  function moveRandomly(delta) {
     var unitVector = getUnitVector(this.pos, {x : Math.random() * width, y : Math.random() * height});
-    this.pos.x += this.attributes.speed * unitVector.x;
-    this.pos.y += this.attributes.speed * unitVector.y;
+    this.pos.x += this.attributes.speed * (delta / 1000) * unitVector.x;
+    this.pos.y += this.attributes.speed * (delta / 1000) * unitVector.y;
   }
   
   function followMouse() {
@@ -109,6 +101,7 @@ function antWars($canvas) {
   }
   
   function simpleDraw() {
+    context.fillStyle = colors[this.team];
     context.beginPath();
     context.arc(this.pos.x, this.pos.y, this.size, 0, Math.PI*2 ,true); //draw ant(x,y,radius,start_angle, end_angle, anti-clockwise)
     context.closePath();
@@ -163,6 +156,37 @@ function antWars($canvas) {
   function mouseClicked(e) {
   	console.log(getCoords(e,$canvas));	
   }
+
+//*************** Functional Constructs*******************
+
+  //You call call this with either an anonomous function, or a string name of a function which the ants have.
+  //It will call the correct method based on the type of variable passed in.
+  function forAllAnts(func) {
+    var method = (typeof func == 'string') ? forAntsOnTeam : forAntsOnTeamAnon
+    var args = Array.prototype.slice.call(arguments, 1);
+    for(var i = 0; i < ants.length; i++)
+    {
+      method(i, func, args);
+    }
+  }
+
+  //Calls function specified by the string "functionName" on the Ant object
+  function forAntsOnTeam(teamNumber, functionName, args) {
+    for(var i = 0; i < ants[teamNumber].length; i++)
+    {
+      var ant = ants[teamNumber][i];
+      ant[functionName].apply(ant, args);
+    }
+  }
+  
+  //Calls anon function passed in
+  function forAntsOnTeamAnon(teamNumber, func, args) {
+    for(var i = 0; i < ants[teamNumber].length; i++)
+    {
+      func.apply(ants[teamNumber][i], args);
+    }
+  }
+
   
 //*************** Canvas rendering functions*******************
   
@@ -173,36 +197,48 @@ function antWars($canvas) {
   function animateIntro() {
   	console.log("Animate Intro is not yet implemented");
   }
-
+  
   function drawAnts() {
-    for(i = 0; i < ants.length; i++)
-    {
-      ants[i].draw();
-    }
+    forAllAnts('draw');
   }
   
-  function moveAnts() {
-    for(i = 0; i < ants.length; i++)
-    {
-      ants[i].move();
-    }
+  function moveAnts(delta) {
+    forAllAnts('move', delta);
   }
   
   function statusAnts() {
-    for(i = 0; i < ants.length; i++)
-    {
-      console.log(ants[i].toString());
+    forAllAnts(function() {
+      console.log(this.toString());
+    });
+  }
+  
+  function updateStats() {
+    var $lis = $('.team-data > ul > li');
+    for(var i = 0; i < ants.length; i++) {
+      $lis.eq(i).html("Team " + i + ": " + ants[i].length + " ants left");
+    }
+  }
+  
+  function setupTeamDataDiv() {
+    var $teamData = $('.team-data > ul');
+    for(var i = 0; i < ants.length; i++) {
+      $teamData.html($teamData.html() + '<li class=team' + i + '>Team ' + i + ': </li>');    
+     $('.team' + i).css('color', colors[i]);
     }
   }
 
   //Helper which will build a bunch of ants for testing.
-  function constructAnts(number) {
+  function constructAnts(numberOfTeams, numberOfAntsPerTeam) {
     var ants = [];
-    for(i = 0; i < number; i++)
+    for(i = 0; i < numberOfTeams; i++)
     {
-      var random = (Math.random() - 0.5) * 100;
-      var random2 = (Math.random() - 0.5) * 100;
-      ants.push(new Ant(250 + random, 250 + random2, 1, 10));
+      ants[i] = [];
+      for(j = 0; j < numberOfAntsPerTeam; j++)
+      {
+        var random = (Math.random() - 0.5) * 100;
+        var random2 = (Math.random() - 0.5) * 100;
+        ants[i].push(new Ant(250 + random, 250 + random2, 100, 10, i));
+      }
     }
     return ants;
   }
@@ -210,39 +246,41 @@ function antWars($canvas) {
   
   //Still needs optimization
   function resolveCombat() {
-  	deadAnts = [];
-    for (i = 0; i < ants.length; i++)
-    {
-      for (j = i + 1; j < ants.length; j++)
-      {
-        //Collision
-        if (detectCollision(ants[i], ants[j]))
-        {          
-          //Deal damage
-          shots_to_kill_ant_j = Math.ceil(ants[j].attributes.health / ants[i].attributes.attack);
-          shots_to_kill_ant_i = Math.ceil(ants[i].attributes.health / ants[j].attributes.attack);        
-          
-          if(shots_to_kill_ant_i > shots_to_kill_ant_j)
-          {
-          	deadAnts.push(j);
-          	ants[j].attributes.health = 0;
-          	ants[i].attributes.health -= (shots_to_kill_ant_j * ants[j].attributes.attack);
-          }
-          else if(shots_to_kill_ant_j > shots_to_kill_ant_i)
-          {
-          	deadAnts.push(i);
-          	ants[i].attributes.health = 0;
-          	ants[j].attributes.health -= (shots_to_kill_ant_i * ants[i].attributes.attack);
-          }
-          else
-          {
-          	deadAnts.push(i);
-          	deadAnts.push(j);
-          	ants[i].attributes.health = 0;
-          	ants[j].attributes.health = 0;
-          }
-        }
-      }
+    
+  	// deadAnts = [];
+  	//     for (i = 0; i < ants.length; i++)
+  	//     {
+  	//       for (j = i + 1; j < ants.length; j++)
+  	//       {
+  	//         //Collision
+  	//         if (detectCollision(ants[i], ants[j]))
+  	//         {          
+  	//           //Deal damage
+  	//           shots_to_kill_ant_j = Math.ceil(ants[j].attributes.health / ants[i].attributes.attack);
+  	//           shots_to_kill_ant_i = Math.ceil(ants[i].attributes.health / ants[j].attributes.attack);
+  	//           
+  	//           if(shots_to_kill_ant_i > shots_to_kill_ant_j)
+  	//           {
+  	//             deadAnts.push(j);
+  	//             ants[j].attributes.health = 0;
+  	//             ants[i].attributes.health -= (shots_to_kill_ant_j * ants[j].attributes.attack);
+  	//           }
+  	//           else if(shots_to_kill_ant_j > shots_to_kill_ant_i)
+  	//           {
+  	//             deadAnts.push(i);
+  	//             ants[i].attributes.health = 0;
+  	//             ants[j].attributes.health -= (shots_to_kill_ant_i * ants[i].attributes.attack);
+  	//           }
+  	//           //Both die simultaneously
+  	//           else
+  	//           {
+  	//             deadAnts.push(i);
+  	//             deadAnts.push(j);
+  	//             ants[i].attributes.health = 0;
+  	//             ants[j].attributes.health = 0;
+  	//           }
+  	//         }
+  	//       }
     }
     for(i = 0; i < deadAnts.length; i++)
     {
@@ -254,11 +292,45 @@ function antWars($canvas) {
   }
     
   function gameLoop() {
-    resolveCombat();
+    if(!last_update_time){last_update_time = new Date().getTime();return;}
+    var time = new Date().getTime();
+    var delta = time - last_update_time;
+    
+    //resolveCombat();
     clearContext();
-    moveAnts();
+    moveAnts(delta);
     drawAnts();
+    updateFoodStats();
+    updateStats();
+    last_update_time = time;
   }
+  
+  
+  
+  //********************************************** INIT ***************************************************************//
+    context = $canvas[0].getContext('2d');
+    //$canvas.mousemove(mouseMoved);
+    $canvas.click(mouseClicked);
+
+    new Team();
+    new Team();
+
+
+    //ants = constructAnts(2,5);
+
+    setupTeamDataDiv();
+
+    setInterval(gameLoop, (1000 / 30)); //Trigger game loop
+  //  setInterval(statusAnts, 5000);
+
+    return {
+      getTeams : function() {
+        return teams;
+      },
+      getAnts : function() {
+        return ants;
+      }
+    };
 }
 
 
