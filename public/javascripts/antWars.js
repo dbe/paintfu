@@ -57,7 +57,10 @@ function antWars($canvas) {
 function Team() {
   this.number = teams.length; //Identify itself as the next team in the list
   this.ants = [];
-  this.foodRate = 10;
+  this.food = 10;  //Rate at which ants are created
+  this.worker = {ratio : 1, progress : 0};
+  this.fighter = {ratio : 0, progress : 0};
+  this.queen = {ratio : 0, progress : 0};
   teams[this.number] = this;
   
 }
@@ -242,6 +245,31 @@ function Team() {
     }
     return ants;
   }
+  
+  //Yes, this funciton wastes progress towards building an ant when they complete :(
+  function buildAnts(delta) {
+    for(var i = 0; i < teams.length; i++) {
+      updateBuildProgress(teams[i].worker, delta);
+      updateBuildProgress(teams[i].fighter, delta);
+      updateBuildProgress(teams[i].queen, delta);
+    }
+  }
+  
+  //Returns boolean of whether or not to create ant
+  function updateBuildProgress(antType, delta) {
+    var gained = antType.ratio * (delta / 1000);
+    //Create ant
+    if(antType.progress + gained >= 100) {
+      antType.progress = 0;
+      console.log("ANT CREATED");
+      return true;
+    }
+    else {
+      antType.progress += gained;
+      return false;
+    }
+  }
+  
  
   
   //Still needs optimization
@@ -300,7 +328,7 @@ function Team() {
     clearContext();
     moveAnts(delta);
     drawAnts();
-    updateFoodStats();
+    buildAnts(delta);
     updateStats();
     last_update_time = time;
   }

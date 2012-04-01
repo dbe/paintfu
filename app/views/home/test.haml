@@ -1,0 +1,33 @@
+%iframe{:src => 'http://www.majorleaguegaming.com/live', :height => 900, :width => 1650, :class => 'main'}
+%iframe{:src => 'http://www.majorleaguegaming.com/live', :height => 900, :width => 1650, :class => 'hidden'}
+
+:javascript
+  function refresh() {
+    $('.hidden').attr('src', 'http://www.majorleaguegaming.com/live');
+    setTimeout(show, 3000, $('.hidden'));
+    setTimeout(hide, 9000, $('.main'));
+  }
+  
+  function show($hidden) {
+    console.log("showing" + $hidden)
+    $hidden.addClass('main').removeClass('hidden');
+  }
+  
+  function hide($main) {
+    console.log("hiding" + $main);
+    $main.addClass('hidden').removeClass('main');
+  }
+  
+  function swap() {
+    var $hidden = $('.hidden');
+    var $main = $('.main');
+    $hidden.addClass('main').removeClass('hidden');
+    $main.addClass('hidden').removeClass('main');
+  }
+  
+  setInterval(refresh, 20000);
+  
+%style
+  :sass
+    .hidden
+      display: none

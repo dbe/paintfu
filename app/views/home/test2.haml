@@ -1,0 +1,25 @@
+%iframe{:src => 'http://www.majorleaguegaming.com/live', :height => 900, :width => 1650, :id => '1'}
+%iframe{:src => 'http://www.majorleaguegaming.com/live', :height => 900, :width => 1650, :id => '2'}
+
+:javascript
+  current = 1;
+  next = 2;
+  
+  function swap() {
+    $('#' + next).attr('src', 'http://www.majorleaguegaming.com/live');
+    setTimeout(scroll, 7000);
+  }
+  
+  function scroll() {
+    if(current == 1) {
+      scrollBy(0, 900);
+      current = 2;
+      next = 1;
+    } else {
+      scrollBy(0, -900);
+      current = 1;
+      next = 2;
+    }
+  }
+  
+  setInterval(swap, 20000);
