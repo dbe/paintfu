@@ -27,7 +27,7 @@ function antWars($canvas) {
 
 //**********************************Ant Object**********************************************************//
       
-  function Ant(x, y, speed, radius, team) {
+    function Ant(x, y, speed, radius, team) {
     this.pos = {'x' : x, 'y' : y};
     this.size = radius; //the radius of the ant
     this.attributes = {
@@ -54,19 +54,30 @@ function antWars($canvas) {
   
 //**********************************Team Object**********************************************************//  
 
-function Team() {
-  this.number = teams.length; //Identify itself as the next team in the list
-  this.ants = [];
-  this.food = 10;  //Rate at which ants are created
-  this.worker = {ratio : 1, progress : 0};
-  this.fighter = {ratio : 0, progress : 0};
-  this.queen = {ratio : 0, progress : 0};
-  teams[this.number] = this;
+  function Team() {
+    this.number = teams.length; //Identify itself as the next team in the list
+    this.ants = [];
+    this.food = 10;  //Rate at which ants are created
+    this.worker = {ratio : 1, progress : 0};
+    this.fighter = {ratio : 0, progress : 0};
+    this.queen = {ratio : 0, progress : 0};
+    teams[this.number] = this;
   
-}
+  }
     
 
 //********************************** Util functions **********************************************************//
+
+  function numericSort(a, b) {
+    return a - b;
+  }
+  function togglePause() {
+    //There is a tiny hack around pausing like this.
+    //Instead of recording the outstanding delta since the last draw before the pause, and retaining that until after the pause,
+    //I keep updating the delta even though I do no work. If the delta is faily constant, then this doesn't really matter, but
+    //if there was a long time without a new draw right when I paused, then the latency went way down, the engine would only update for the shorter amount of latency instead of the longer amount.
+    paused = !paused;
+  }
 
 //***************Ant movement functions*******************
 
@@ -157,7 +168,9 @@ function Team() {
   }
   
   function mouseClicked(e) {
-  	console.log(getCoords(e,$canvas));	
+  	console.log(getCoords(e,$canvas));
+  	togglePause();
+  	statusAnts();
   }
 
 //*************** Functional Constructs*******************
@@ -216,22 +229,24 @@ function Team() {
   }
   
   function updateStats() {
-    var $lis = $('.team-data > ul > li');
     for(var i = 0; i < ants.length; i++) {
-      $lis.eq(i).html("Team " + i + ": " + ants[i].length + " ants left");
+      var $teamDetails = $('.team-data.team' + i).find('.team-details');
+      $teamDetails.find('.ants-left').html(ants[i].length);
+      $teamDetails.find('.food').html(teams[i].food);
     }
   }
-  
+
   function setupTeamDataDiv() {
-    var $teamData = $('.team-data > ul');
+    var $hud = $('.hud');
     for(var i = 0; i < ants.length; i++) {
-      $teamData.html($teamData.html() + '<li class=team' + i + '>Team ' + i + ': </li>');    
-     $('.team' + i).css('color', colors[i]);
+      $hud.append("<div class='team-data team" + i + "'><h2>Team" + i + ":</h2><div class=team-details><dl><dt>Ants Left</dt><dd class=ants-left></dd><dt>Food</dt><dd class=food></dd></dl></div></div>");
+      $('.team' + i + ' h2').css('color', colors[i]);
     }
   }
 
   //Helper which will build a bunch of ants for testing.
-  function constructAnts(numberOfTeams, numberOfAntsPerTeam) {
+  function constructAnts(numberOfAntsPerTeam) {
+    var numberOfTeams = teams.length;
     var ants = [];
     for(i = 0; i < numberOfTeams; i++)
     {
@@ -240,7 +255,7 @@ function Team() {
       {
         var random = (Math.random() - 0.5) * 100;
         var random2 = (Math.random() - 0.5) * 100;
-        ants[i].push(new Ant(250 + random, 250 + random2, 100, 10, i));
+        ants[i].push(new Ant(Math.ceil(250 + random), Math.ceil(250 + random2), 50, 3, i));
       }
     }
     return ants;
@@ -249,18 +264,18 @@ function Team() {
   //Yes, this funciton wastes progress towards building an ant when they complete :(
   function buildAnts(delta) {
     for(var i = 0; i < teams.length; i++) {
-      updateBuildProgress(teams[i].worker, delta);
-      updateBuildProgress(teams[i].fighter, delta);
-      updateBuildProgress(teams[i].queen, delta);
+      updateBuildProgress(teams[i].worker, teams[i].food, delta);
+      updateBuildProgress(teams[i].fighter, teams[i].food,  delta);
+      updateBuildProgress(teams[i].queen, teams[i].food, delta);
     }
   }
   
   //Returns boolean of whether or not to create ant
-  function updateBuildProgress(antType, delta) {
-    var gained = antType.ratio * (delta / 1000);
+  function updateBuildProgress(antType, rate, delta) {
+    var gained = antType.ratio * rate * (delta / 1000);
     //Create ant
     if(antType.progress + gained >= 100) {
-      antType.progress = 0;
+      antType.progress = (antType.progress + gained - 100);
       console.log("ANT CREATED");
       return true;
     }
@@ -271,65 +286,81 @@ function Team() {
   }
   
  
-  
-  //Still needs optimization
+  //This method of resolving combat does not take into account the possibility of there being multiple ants on top of each other simulatneously.
+  //This results in the order of resolving combat mattering. If there are 3 teams, and we check 1v2 first, then 1v3. Then team 3 will have an advantage over the other 2 teams.
+  //This is because after the initial check, team 1 and 2 will have killed each other off, and team 3 will only have to deal with low health ants (assumeing all 3 teams ants were on top of each other)
+  //This basically could represent reality if the ants were to attack each other in this form. Also, in reality it won't have any effect unless the ants spawn or teleport all on top of each other, which won't happen.
   function resolveCombat() {
-    
-  	// deadAnts = [];
-  	//     for (i = 0; i < ants.length; i++)
-  	//     {
-  	//       for (j = i + 1; j < ants.length; j++)
-  	//       {
-  	//         //Collision
-  	//         if (detectCollision(ants[i], ants[j]))
-  	//         {          
-  	//           //Deal damage
-  	//           shots_to_kill_ant_j = Math.ceil(ants[j].attributes.health / ants[i].attributes.attack);
-  	//           shots_to_kill_ant_i = Math.ceil(ants[i].attributes.health / ants[j].attributes.attack);
-  	//           
-  	//           if(shots_to_kill_ant_i > shots_to_kill_ant_j)
-  	//           {
-  	//             deadAnts.push(j);
-  	//             ants[j].attributes.health = 0;
-  	//             ants[i].attributes.health -= (shots_to_kill_ant_j * ants[j].attributes.attack);
-  	//           }
-  	//           else if(shots_to_kill_ant_j > shots_to_kill_ant_i)
-  	//           {
-  	//             deadAnts.push(i);
-  	//             ants[i].attributes.health = 0;
-  	//             ants[j].attributes.health -= (shots_to_kill_ant_i * ants[i].attributes.attack);
-  	//           }
-  	//           //Both die simultaneously
-  	//           else
-  	//           {
-  	//             deadAnts.push(i);
-  	//             deadAnts.push(j);
-  	//             ants[i].attributes.health = 0;
-  	//             ants[j].attributes.health = 0;
-  	//           }
-  	//         }
-  	//       }
-    }
-    for(i = 0; i < deadAnts.length; i++)
-    {
-   	  //take out ant from main array when it should be dead
-   	  //because splice will actually reduce the indexes of all the ants, we must subtract by i to adjust for there being i less ants in the main array per iteration
-   	  ants.splice(deadAnts[i] - i, 1)
+    var deadAnts = [];
+    for(var i = 0; i < teams.length; i++) {
+      deadAnts[i] = [];
     }
     
+    //for each team
+    for(var i = 0; i < ants.length; i++) {
+      //for each ant on that team
+      for(var j = 0; j < ants[i].length; j++) {
+        if(ants[i][j].attributes.health == 0){continue;}
+        //for all teams greater than the current team
+        for(var k = i + 1; k < ants.length; k++) {
+          //for each ant on that secondary team
+          for (var l = 0; l < ants[k].length; l++) {
+            if(ants[k][l].attributes.health == 0 || ants[i][j].attributes.health == 0){continue;}
+            var antOne = ants[i][j];
+            var antTwo = ants[k][l]; 
+            if (detectCollision(antOne, antTwo)) {
+              //Deal damage
+              //console.log("Collision detected between: " + antOne + " and " + antTwo);
+              var shotsToKillAntOne = Math.ceil(antOne.attributes.health / antTwo.attributes.attack);
+              var shotsToKillAntTwo = Math.ceil(antTwo.attributes.health / antOne.attributes.attack);
+
+              //Ant one is stronger, ant two dies
+              if(shotsToKillAntOne > shotsToKillAntTwo)
+              {
+                deadAnts[k].push(l);
+                antTwo.attributes.health = 0;
+                antOne.attributes.health -= (shotsToKillAntTwo * antTwo.attributes.attack);
+              }
+              else if(shotsToKillAntTwo > shotsToKillAntOne)
+              {
+                deadAnts[i].push(j);
+                antOne.attributes.health = 0;
+                antTwo.attributes.health -= (shotsToKillAntOne * antOne.attributes.attack);
+              }
+              //Both die simultaneously
+              else
+              {
+                deadAnts[i].push(j);
+                deadAnts[k].push(l);
+                antOne.attributes.health = 0;
+                antTwo.attributes.health = 0;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    for(var i = 0; i < deadAnts.length; i++) {
+      deadAnts[i] = deadAnts[i].sort(numericSort);
+      for(var j = deadAnts[i].length - 1; j >= 0; j--) {
+        ants[i].splice(deadAnts[i][j], 1)
+      }
+    }
   }
     
   function gameLoop() {
     if(!last_update_time){last_update_time = new Date().getTime();return;}
     var time = new Date().getTime();
     var delta = time - last_update_time;
-    
-    //resolveCombat();
-    clearContext();
-    moveAnts(delta);
-    drawAnts();
-    buildAnts(delta);
-    updateStats();
+    if(!paused) {
+      resolveCombat();
+      clearContext();
+      moveAnts(delta);
+      drawAnts();
+      buildAnts(delta);
+      updateStats();
+    }
     last_update_time = time;
   }
   
@@ -339,17 +370,24 @@ function Team() {
     context = $canvas[0].getContext('2d');
     //$canvas.mousemove(mouseMoved);
     $canvas.click(mouseClicked);
+    paused = false;
 
     new Team();
     new Team();
+    new Team();
 
+    firstTime = true;
 
-    //ants = constructAnts(2,5);
+    ants = constructAnts(100);
 
     setupTeamDataDiv();
 
+    //gameLoop();
+    //gameLoop();
+    //resolveCombat();
+    //setTimeout(gameLoop, 5000);
     setInterval(gameLoop, (1000 / 30)); //Trigger game loop
-  //  setInterval(statusAnts, 5000);
+    //setInterval(statusAnts, 5000);
 
     return {
       getTeams : function() {
