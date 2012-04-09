@@ -1,12 +1,21 @@
 //*******************************************On document ready, start up antWars************************************************************//
 $(document).ready(function() {
   $canvas = $('.canvas');
-  antWarsHandler = antWars($canvas);
+  showLoading();
+  loadResources(function(resources) {
+    var antWarsHandler = antWars($canvas, resources);
+  });
 });
+
+function showLoading() {
+  var context = $canvas[0].getContext('2d');
+  context.font = "50px sans-serif";
+  context.strokeText("Loading", $canvas[0].width / 2 - 80, $canvas[0].height / 2);
+}
 
 
 //**********************************antWars**********************************************************//
-function antWars($canvas) {
+function antWars($canvas, resources) {
   var ants = [], //array of arrays. first dimension is the team number, second dimension is the actual list of ants.
       teams = [], //Array of teams
       context,
@@ -20,6 +29,30 @@ function antWars($canvas) {
       WORKER_ANT_COST = 10,
       FIGHTER_ANT_COST = 20,
       QUEEN_ANT_COST = 100;
+      
+  var ANT_TYPE = Object.freeze({
+    "WORKER" : {
+      cost : 10,
+      radius : 2,
+      attack : 1,
+      health : 10,
+      speed : 100
+    },
+    "FIGHTER" : {
+      cost : 20,
+      radius : 5,
+      attack : 5,
+      health : 30,
+      speed : 70
+    },
+    "QUEEN" : {
+      cost : 100,
+      radius : 5,
+      attack : 1,
+      health : 100,
+      speed : 10
+    }
+  });
 
 
 
@@ -27,15 +60,16 @@ function antWars($canvas) {
 
 //**********************************Ant Object**********************************************************//
       
-    function Ant(x, y, speed, radius, team) {
+    function Ant(x, y, radius, health, attack, speed, team, type) {
     this.pos = {'x' : x, 'y' : y};
     this.size = radius; //the radius of the ant
     this.attributes = {
-      health : x,
-      attack : 5,
+      health : health,
+      attack : attack,
       speed : speed
     };
     this.team = team;
+    this.type = type;
   }
   
   Ant.prototype.toString = function() {
@@ -51,18 +85,33 @@ function antWars($canvas) {
   Ant.prototype.move = moveRandomly;
   Ant.prototype.draw = simpleDraw;
   
+  //Used for the default behavior where we want to create ants at each nest.
+  function createAnt(teamNumber, antType) {
+    var team = teams[teamNumber];
+    for (var i=0; i < team.hills.length; i++) {
+      ants[teamNumber].push(new Ant(team.hills[i][0], team.hills[i][1], antType.radius, antType.health + team.bonusHealth, antType.attack + team.bonusAttack, antType.speed + team.bonusSpeed, teamNumber, antType));
+    };
+  }
+  
+  //Used to create a single ant in a specific place
+  function placeAnt() {
+    console.log("placeAnt is not implemented");
+  }
+  
   
 //**********************************Team Object**********************************************************//  
 
-  function Team() {
+  function Team(x, y) {
     this.number = teams.length; //Identify itself as the next team in the list
-    this.ants = [];
-    this.food = 10;  //Rate at which ants are created
+    this.food = 100;  //Rate at which ants are created
     this.worker = {ratio : 1, progress : 0};
     this.fighter = {ratio : 0, progress : 0};
     this.queen = {ratio : 0, progress : 0};
+    this.hills = [[x,y]];
+    this.bonusAttack = 0;
+    this.bonusHealth = 0;
+    this.bonusSpeed = 0;
     teams[this.number] = this;
-  
   }
     
 
@@ -214,6 +263,15 @@ function antWars($canvas) {
   	console.log("Animate Intro is not yet implemented");
   }
   
+  function drawBoard() {
+    for (var i = 0; i < teams.length; i++) {
+      for (var k = 0; k < teams[i].hills.length; k ++) {
+        context.drawImage(resources.images["antHill" + i], teams[i].hills[k][0], teams[i].hills[k][1]);
+      }
+    }
+    
+  }
+  
   function drawAnts() {
     forAllAnts('draw');
   }
@@ -246,27 +304,30 @@ function antWars($canvas) {
 
   //Helper which will build a bunch of ants for testing.
   function constructAnts(numberOfAntsPerTeam) {
-    var numberOfTeams = teams.length;
-    var ants = [];
-    for(i = 0; i < numberOfTeams; i++)
+    for(var i = 0; i < teams.length; i++)
     {
       ants[i] = [];
-      for(j = 0; j < numberOfAntsPerTeam; j++)
+      for(var j = 0; j < numberOfAntsPerTeam; j++)
       {
-        var random = (Math.random() - 0.5) * 100;
-        var random2 = (Math.random() - 0.5) * 100;
-        ants[i].push(new Ant(Math.ceil(250 + random), Math.ceil(250 + random2), 50, 3, i));
+        createAnt(i, ANT_TYPE["FIGHTER"]);
       }
     }
-    return ants;
   }
   
-  //Yes, this funciton wastes progress towards building an ant when they complete :(
   function buildAnts(delta) {
     for(var i = 0; i < teams.length; i++) {
-      updateBuildProgress(teams[i].worker, teams[i].food, delta);
-      updateBuildProgress(teams[i].fighter, teams[i].food,  delta);
-      updateBuildProgress(teams[i].queen, teams[i].food, delta);
+      if(updateBuildProgress(teams[i].worker, teams[i].food, delta)) {
+        console.log("worker created");
+        createAnt(i, ANT_TYPE["WORKER"]);
+      }
+      if(updateBuildProgress(teams[i].fighter, teams[i].food,  delta)) {
+        console.log("fighter created");
+        createAnt(i, ANT_TYPE["FIGHTER"]);
+      }
+      if(updateBuildProgress(teams[i].queen, teams[i].food, delta)) {
+        console.log("queen created");
+        createAnt(i, ANT_TYPE["QUEEN"]);
+      }
     }
   }
   
@@ -276,7 +337,6 @@ function antWars($canvas) {
     //Create ant
     if(antType.progress + gained >= 100) {
       antType.progress = (antType.progress + gained - 100);
-      console.log("ANT CREATED");
       return true;
     }
     else {
@@ -357,6 +417,7 @@ function antWars($canvas) {
       resolveCombat();
       clearContext();
       moveAnts(delta);
+      drawBoard();
       drawAnts();
       buildAnts(delta);
       updateStats();
@@ -372,13 +433,17 @@ function antWars($canvas) {
     $canvas.click(mouseClicked);
     paused = false;
 
-    new Team();
-    new Team();
-    new Team();
+    new Team(100, 100);
+    teams[0].hills.push([width - 100, 100]);
+    new Team(height - 100, height - 100);
+    teams[1].hills.push([100, height - 100]);
+    teams[1].worker.ratio = 0;
+    teams[1].fighter.ratio = 1;
+    //new Team();
 
     firstTime = true;
 
-    ants = constructAnts(100);
+    constructAnts(1);
 
     setupTeamDataDiv();
 
@@ -397,6 +462,34 @@ function antWars($canvas) {
         return ants;
       }
     };
+}
+
+//Add resources here
+function loadResources(onComplete) {
+  var imageNames = ["antHill", "antHill0", "antHill1", "antHill2"];
+  var resources = {
+    images : {}
+  };
+  var toLoadCount = imageNames.length;
+
+  for(var i = 0; i < imageNames.length; i++) {
+    loadResource(imageNames[i]);
+  }
+
+  function loadResource(imageName) {
+    var image = new Image();
+    image.onload = function() {
+      //Image loading done.
+      resources.images[imageName] = image;
+      if(toLoadCount == 1) {
+        onComplete(resources);
+      }
+      else {
+        toLoadCount--;
+      }
+    }
+    image.src = "/images/" + imageName + ".png";
+  }
 }
 
 
