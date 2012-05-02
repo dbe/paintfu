@@ -10,6 +10,39 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110527044544) do
+ActiveRecord::Schema.define(:version => 20120502043708) do
+
+  create_table "entries", :force => true do |t|
+    t.datetime "date",           :null => false
+    t.text     "comment"
+    t.integer  "wake_up_hour"
+    t.integer  "wake_up_minute"
+    t.integer  "sleep_hour"
+    t.integer  "sleep_minute"
+    t.integer  "mood"
+    t.integer  "energy"
+    t.integer  "productivity"
+  end
+
+  create_table "foods", :force => true do |t|
+    t.integer "entries_id", :null => false
+    t.string  "type",       :null => false
+    t.integer "calories"
+    t.integer "caffeine"
+  end
+
+  create_table "naps", :force => true do |t|
+    t.integer "entries_id", :null => false
+    t.integer "start_hour", :null => false
+    t.integer "length",     :null => false
+  end
+
+  create_table "workouts", :force => true do |t|
+    t.integer "entries_id", :null => false
+    t.string  "activity",   :null => false
+    t.integer "start_hour", :null => false
+    t.integer "length",     :null => false
+    t.integer "intensity",  :null => false
+  end
 
 end
