@@ -1,1 +1,5 @@
-hji
+%ul
+  - @entries.each do |entry|
+    %li
+      = link_to(entry.date.strftime("%B %d %Y"), journal_entry_path(entry.id))
+  

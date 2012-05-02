@@ -8,6 +8,8 @@ Paintfu::Application.routes.draw do
   get "paint/index"
   
   match 'visualizer' => 'paint#visualizer'
+  
+  match 'journal/show/:id' => 'journal#show', :as => :journal_entry
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
