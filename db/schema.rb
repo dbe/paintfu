@@ -10,18 +10,18 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120502043708) do
+ActiveRecord::Schema.define(:version => 20120502062307) do
 
   create_table "entries", :force => true do |t|
-    t.datetime "date",           :null => false
-    t.text     "comment"
-    t.integer  "wake_up_hour"
-    t.integer  "wake_up_minute"
-    t.integer  "sleep_hour"
-    t.integer  "sleep_minute"
-    t.integer  "mood"
-    t.integer  "energy"
-    t.integer  "productivity"
+    t.date    "date",           :null => false
+    t.text    "comment"
+    t.integer "wake_up_hour"
+    t.integer "wake_up_minute"
+    t.integer "sleep_hour"
+    t.integer "sleep_minute"
+    t.integer "mood"
+    t.integer "energy"
+    t.integer "productivity"
   end
 
   create_table "foods", :force => true do |t|

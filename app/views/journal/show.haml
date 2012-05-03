@@ -1,1 +1,44 @@
-= @entry.comment
+%h2
+  Journal Entry
+#comment.pane
+  %p#comment-value
+    = @entry.comment.nil? ? "Nothing here yet!" : @entry.comment
+  = text_area_tag "comment-entry"
+  
+%h2
+  Macro
+.pane
+
+%h2
+  Sleep
+.pane
+
+%h2
+  Workout
+.pane
+
+%h2
+  Food
+.pane
+
+
+
+:javascript
+  $(function() {
+    function submitComments(newComments, $textArea) {
+      $.ajax({
+        url: "/journal/submit_comment",
+        data : {id : #{@entry.id}, comment : newComments},
+        success : function(data) {
+          $textArea.val("");
+          $('#comment-value').html(data);
+        }
+      });
+    }
+  
+    $('#comment-entry').keydown(function(e) {
+      if(e.keyCode == 13 && e.shiftKey === true) {
+        submitComments($(this).val(), $(this))
+      }
+    });
+  });

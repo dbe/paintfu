@@ -1,5 +1,16 @@
 %ul
+  - date_map = @entries.map(&:date)
+  - if !date_map.include?(Date.today)
+    = link_to("Create an entry for today", create_journal_entry_path(Date.today))
+    %br
+  - if !date_map.include?(Date.yesterday)
+    = link_to("Create an entry for yesterday", create_journal_entry_path(Date.yesterday))
+    %br
   - @entries.each do |entry|
     %li
-      = link_to(entry.date.strftime("%B %d %Y"), journal_entry_path(entry.id))
+      = link_to(entry.date.strftime("%d %B %Y (%A)"), journal_entry_path(entry.id))
+      
+%style
+  :sass
+
   

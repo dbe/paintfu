@@ -1,0 +1,16 @@
+!!!
+%html
+  %head
+    %title
+      PaintFu
+    = stylesheet_link_tag 'bootstrap.min.css', 'journal'
+    = javascript_include_tag 'jquery', 'bootstrap.min.js'
+    = csrf_meta_tag
+    
+  %body
+    .container
+      = link_to(raw("<h1 id=belikewater> Be like Water </h1>"), journal_root_path)
+      = yield
+      
+      = bruce_lee
+      

@@ -1,5 +1,8 @@
 class JournalController < ApplicationController
   before_filter :auth_user, :except => :auth
+  layout 'journal'
+  
+  #Super secret open source password
   AUTH_TOKEN = "klajsdflkjsdjh234234098fsa9df09asd78f9023ujisd70"
   
   def index
@@ -10,9 +13,29 @@ class JournalController < ApplicationController
     @entry = Entry.find(params[:id])
   end
   
+  def create
+    date = Date.parse(params[:date])
+    entry = (Entry.all.select {|entry| entry.date == date}).first
+    if(entry.nil?)
+      flash[:success] = "Journal entry was created"
+      entry = Entry.create!(:date => date)
+    end
+    redirect_to journal_entry_path(entry.id)
+  end
+  
+  #lolAuth
   def auth
     cookies[:auth] = AUTH_TOKEN
     redirect_to :controller => :journal, :action => :index
+  end
+  
+  
+  #Ajax method
+  def submit_comment
+    entry = Entry.find(params[:id])
+    new_comment = entry.comment + "\n" + params[:comment] rescue params[:comment]
+    entry.update_attributes!(:comment => new_comment)
+    return render :text => new_comment
   end
   
   private
