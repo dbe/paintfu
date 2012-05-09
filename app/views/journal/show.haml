@@ -1,44 +1,158 @@
-%h2
-  Journal Entry
-#comment.pane
-  %p#comment-value
-    = @entry.comment.nil? ? "Nothing here yet!" : @entry.comment
-  = text_area_tag "comment-entry"
+.row
+  .span8.offset2
+    %h2
+      Journal Entry
+    #comment.well
+      %p#comment-display
+        = @entry.comment
+      = text_area_tag "comment-entry", @entry.comment
+      
+.row
+  .span4.offset2
+    %h2
+      Macro
+    = form_tag "macro", :class => 'form-inline' do
+      = render :partial => 'radio_buttons', :locals => {:number => 10, :label => "mood"}
+      = render :partial => 'radio_buttons', :locals => {:number => 10, :label => "energy"}
+      = render :partial => 'radio_buttons', :locals => {:number => 10, :label => "productivity"}
   
-%h2
-  Macro
-.pane
-
-%h2
-  Sleep
-.pane
-
-%h2
-  Workout
-.pane
-
-%h2
-  Food
-.pane
-
-
+  .span4.offset2
+    %h2
+      Sleep
+    = form_tag "sleep", :id => 'sleep-form' do
+      = label_tag 'Woke up:', nil, :class => "control-label"
+      = select_tag 'wake-hour', hour_select_options
+      = select_tag 'wake-minute', minute_select_options
+      %br
+      = label_tag "Slept:", nil, :class => "control-label"
+      = select_tag 'slept-hour', hour_select_options
+      = select_tag 'slept-minute', minute_select_options
+    
+.row
+  .span4.offset2
+    %h2
+      Food
+    %table.table
+      %thead
+        %tr
+          %th
+            Food
+          %th
+            Calories
+          %th
+            Caffeine
+      %tbody
+      - @entry.foods.each do |food|
+        %tr
+          %td
+            = food.name
+          %td
+            = food.calories
+          %td
+            = food.caffeine
+      %tr
+        %td
+          = text_field_tag 'new-food-name', '', :class => 'well new-field', :tab_nav => 0
+        %td
+          = text_field_tag 'new-food-calories', '', :class => 'well new-field', :tab_nav => 1
+        %td
+          = text_field_tag 'new-food-caffeine', '', :class => 'well new-field', :tab_nav => 2, :final_input => true
+      
+  .span4.offset2
+    %h2
+      Workout
+    %table.table
+      %thead
+        %tr
+          %th
+            Activity
+          %th
+            Started at
+          %th
+            Length
+          %th
+            Intensity
+      %tbody
+      - @entry.workouts.each do |workout|
+        %tr
+          %td
+            = workout.activity
+          %td
+            = "#{workout.start_hour}:00 hours"
+          %td
+            = workout.length
+          %td
+            = workout.intensity
+      
+    .btn.btn-success#add-workoutd
+      +
 
 :javascript
   $(function() {
-    function submitComments(newComments, $textArea) {
+    $(':radio').click(function(e) {
+      submitTableChange('entry', $(this).attr('name'), $(this).attr('value'));
+    })
+    
+    function submitTableChange(tableName, columnName, value) {
       $.ajax({
-        url: "/journal/submit_comment",
-        data : {id : #{@entry.id}, comment : newComments},
+        url: "/journal/submit_table_change",
+        data : {id : #{@entry.id}, table_name : tableName, column_name : columnName, value : value},
         success : function(data) {
-          $textArea.val("");
-          $('#comment-value').html(data);
+          console.log(data);
         }
       });
     }
+    
+    $('.new-field').keydown(function(e) {
+      if(e.keyCode == 13) {
+        var $this = $(this);
+        
+        if($this.attr('final_input')) {
+          console.log("Submit the form here!");
+        }
+        
+        var currentTabNav = parseInt($(this).attr('tab_nav'));
+        $(this).parent().siblings().eq(currentTabNav).find('.new-field').focus();
+      }
+    })
   
+  
+  
+    $('#comment').one('click', showEdit);
+    
+    function showEdit(e) {
+      $('#comment-display').hide();
+      $('#comment-entry').show();
+      $('body').one('click', hideEdit);
+      return false;
+    }
+    
+    function hideEdit(e) {
+      if($('#comment').find(e.target).length > 0) {
+        $('body').one('click', hideEdit);
+        return false;
+      }
+      $('#comment-display').show();
+      $('#comment-entry').hide();
+      $('#comment').one('click', showEdit);
+      return false;
+    }
+    
     $('#comment-entry').keydown(function(e) {
       if(e.keyCode == 13 && e.shiftKey === true) {
         submitComments($(this).val(), $(this))
       }
     });
+  
+    function submitComments(newComments, $textArea) {
+      $.ajax({
+        url: "/journal/submit_comment",
+        data : {id : #{@entry.id}, comment : newComments},
+        success : function(data) {
+          $('#comment-display').html(newComments);
+          $('#comment-display').toggle();
+          $textArea.toggle();
+        }
+      });
+    }
   });

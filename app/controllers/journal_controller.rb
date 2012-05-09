@@ -33,9 +33,16 @@ class JournalController < ApplicationController
   #Ajax method
   def submit_comment
     entry = Entry.find(params[:id])
-    new_comment = entry.comment + "\n" + params[:comment] rescue params[:comment]
-    entry.update_attributes!(:comment => new_comment)
-    return render :text => new_comment
+    entry.update_attributes!(:comment =>  params[:comment])
+    return render :text => "OK"
+  end
+  
+  def submit_table_change
+    table = params[:table_name].capitalize
+    column = params[:column_name]
+    value = params[:value]
+    table.constantize.find(params[:id]).update_attributes!(column.to_sym => value)
+    return render :text => "OK"
   end
   
   private

@@ -1,0 +1,5 @@
+= label_tag "#{label.capitalize}:"
+%br
+- number.times do |i|
+  = radio_button_tag label, i + 1
+  = label_tag i + 1
