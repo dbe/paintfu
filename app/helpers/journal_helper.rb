@@ -14,11 +14,25 @@ module JournalHelper
   end
     
   
-  def hour_select_options
-    @@hour_string.html_safe
+  # def hour_select_options
+  #   @@hour_string.html_safe
+  # end
+  # 
+  # def minute_select_options
+  #   @@minute_string.html_safe
+  # end
+  
+  def hour_select_options(default)
+    default ||= ""
+    options_for_select((0..23).to_a, default)
   end
   
-  def minute_select_options
-    @@minute_string.html_safe
+  def minute_select_options(default)
+    if(default.nil?)
+      default = ""
+    else
+      default = "0#{default}" if default < 10
+    end
+    options_for_select((0..59).to_a.map{|a| a < 10 ? "0#{a}" : "#{a}"}, default)
   end
 end

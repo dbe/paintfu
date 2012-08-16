@@ -45,6 +45,13 @@ class JournalController < ApplicationController
     return render :text => "OK"
   end
   
+  def submit_record_creation
+    table = params[:table_name].capitalize
+    params[:attributes][:entry_id] = params[:id]
+    table.constantize.create!(params[:attributes])
+    return render :text => "OK"
+  end
+  
   private
   
   def auth_user

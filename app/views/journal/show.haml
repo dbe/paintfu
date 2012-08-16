@@ -21,12 +21,12 @@
       Sleep
     = form_tag "sleep", :id => 'sleep-form' do
       = label_tag 'Woke up:', nil, :class => "control-label"
-      = select_tag 'wake-hour', hour_select_options
-      = select_tag 'wake-minute', minute_select_options
+      = select_tag 'wake_up_hour', hour_select_options(@entry.wake_up_hour), {:class => 'sleep-settings'}
+      = select_tag 'wake_up_minute', minute_select_options(@entry.wake_up_minute), {:class => 'sleep-settings'}
       %br
       = label_tag "Slept:", nil, :class => "control-label"
-      = select_tag 'slept-hour', hour_select_options
-      = select_tag 'slept-minute', minute_select_options
+      = select_tag 'sleep_hour', hour_select_options(@entry.sleep_hour), {:class => 'sleep-settings'}
+      = select_tag 'sleep_minute', minute_select_options(@entry.sleep_minute), {:class => 'sleep-settings'}
     
 .row
   .span4.offset2
@@ -52,11 +52,11 @@
             = food.caffeine
       %tr
         %td
-          = text_field_tag 'new-food-name', '', :class => 'well new-field', :tab_nav => 0
+          = text_field_tag 'food-name', '', :class => 'well new-field', :tab_nav => 0
         %td
-          = text_field_tag 'new-food-calories', '', :class => 'well new-field', :tab_nav => 1
+          = text_field_tag 'food-calories', '', :class => 'well new-field', :tab_nav => 1
         %td
-          = text_field_tag 'new-food-caffeine', '', :class => 'well new-field', :tab_nav => 2, :final_input => true
+          = text_field_tag 'food-caffeine', '', :class => 'well new-field', :tab_nav => 2, :final_input => true
       
   .span4.offset2
     %h2
@@ -83,12 +83,25 @@
             = workout.length
           %td
             = workout.intensity
+      %tr
+        %td
+          = text_field_tag 'workout-activity', '', :class => 'well new-field', :tab_nav => 0
+        %td
+          = text_field_tag 'workout-start_hour', '', :class => 'well new-field', :tab_nav => 1
+        %td
+          = text_field_tag 'workout-length', '', :class => 'well new-field', :tab_nav => 2
+        %td
+          = text_field_tag 'workout-intensity', '', :class => 'well new-field', :tab_nav => 3, :final_input => true
       
-    .btn.btn-success#add-workoutd
-      +
+    // .btn.btn-success#add-workout
+    //   +
 
 :javascript
   $(function() {
+    $('.sleep-settings').change(function() {
+      submitTableChange('entry', $(this).attr('name'), $(this).val());
+    })
+  
     $(':radio').click(function(e) {
       submitTableChange('entry', $(this).attr('name'), $(this).attr('value'));
     })
@@ -103,21 +116,50 @@
       });
     }
     
+    function submitRecordCreation(tableName, attributes) {
+      $.ajax({
+        url: "/journal/submit_record_creation",
+        data : {id : #{@entry.id}, table_name : tableName, attributes: attributes},
+        success : function(data) {
+          console.log(data);
+          window.location = window.location;
+        }
+      });
+    }
+    
+    //Adds to attributes array, and returns the table name
+    function extractWellData($element, attributes) {
+      var idSplit = $element.attr('id').split("-");
+      attributes[idSplit[1]] = $element.val();
+      var tableName = idSplit[0];
+      return tableName;
+    }
+    
+    //New field wells for workout and food
     $('.new-field').keydown(function(e) {
-      if(e.keyCode == 13) {
+      if(e.keyCode == 13 || e.keyCode == 9) {
         var $this = $(this);
+        var attributes = {};
         
         if($this.attr('final_input')) {
-          console.log("Submit the form here!");
+          var $siblings = $(this).parent().siblings();
+          for(var i = 0; i < $siblings.length; i++) {
+            extractWellData($siblings.eq(i).find('.new-field'), attributes);
+          }
+          
+          var tableName = extractWellData($this, attributes);
+          
+          submitRecordCreation(tableName, attributes);
         }
         
         var currentTabNav = parseInt($(this).attr('tab_nav'));
         $(this).parent().siblings().eq(currentTabNav).find('.new-field').focus();
+        return false;
       }
     })
   
   
-  
+    //Comments js
     $('#comment').one('click', showEdit);
     
     function showEdit(e) {
