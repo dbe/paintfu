@@ -23,6 +23,7 @@ Paintfu::Application.configure do
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
   
+  config.stylesheets_dir = '/tmp/stylesheets'
   Sass::Plugin.options[:css_location] =  "#{Rails.root}/tmp/stylesheets"
   Sass::Plugin.options[:template_location] =  "#{Rails.root}/app/stylesheets"
 end
